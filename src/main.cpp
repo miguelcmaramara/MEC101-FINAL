@@ -38,27 +38,12 @@ Motor scooper(0, 0, 0);
 
 const int rightServoPin = 10;
 const int leftServoPin = 9;
-  //structurez
 
+/************************************************************************
 
+Function Definition
 
-  /*old way
-  const int leftDriver_enable= 0;
-  const int leftDriver_logicBlack = 0;
-  const int leftDriver_logicRed = 0;
-
-  const int rightDriver_enable = 0;
-  const int rightDriver_logicBlack = 0;
-  const int rightDriver_logicRed = 0;
-
-  const int scooper_enable = 0;
-  const int scooper_logicBlack = 0;
-  const int scooper_logicRed = 0;
-
-  const int autoDoor_enable = 0;
-  const int autoDoor_logicBlack = 0;
-  const int autoDoor_logicRed = 0;
-  */
+************************************************************************/
 
 
   //optimally, input is between -10, 10 each
