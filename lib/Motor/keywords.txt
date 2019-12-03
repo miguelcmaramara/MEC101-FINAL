@@ -1,0 +1,7 @@
+Motor	KEYWORD1
+hardStop	KEYWORD2
+forward	KEYWORD2
+backward	KEYWORD2
+changeDir	KEYWORD2
+driveSpeed	KEYWORD2
+drive	KEYWORD2
