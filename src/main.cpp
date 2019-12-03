@@ -39,6 +39,87 @@ Motor scooper(0, 0, 0);
 const int rightServoPin = 10;
 const int leftServoPin = 9;
 
+int trig1 = 46; // attach pin 46 to Trig
+int echo1 = 47; //attach pin 47 to Echo
+int trig2 = 48; //attach pin 48 to Trig
+int echo2 = 49; //attach pin 49 to Echo
+int ledPin = 13;
+ 
+void setup()
+{
+ // initialize serial communication:
+ Serial.begin(9600);
+}
+
+void ultrasonicDetect()
+{
+  long durationR, inchesR, durationL, inchesL;
+  
+  // The output is triggered by a HIGH pulse of 2 or more microseconds.
+  // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
+ 
+  pinMode(trig1, OUTPUT);
+  digitalWrite(trig1, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig1, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(trig1, LOW);
+ 
+  // The echo pin is used to read the signal: a HIGH
+  // pulse whose duration is the time (in microseconds) from the sending
+  // of the ping to the reception of its echo off of an object.
+ 
+  pinMode(echo1,INPUT);
+  durationL = pulseIn(echo1, HIGH);
+ 
+  // convert the time into a distance
+ 
+  inchesL = microsecondsToInches(durationL);
+
+  Serial.print("distance sensor 1:");
+  Serial.print(inchesL);
+  Serial.print("in, ");
+  Serial.println();
+  delay(100);
+ 
+  pinMode(trig2, OUTPUT);
+  digitalWrite(trig2, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trig2, HIGH);
+  delayMicroseconds(5);
+  digitalWrite(trig2, LOW);
+ 
+  pinMode(echo2,INPUT);
+  durationR = pulseIn(echo2, HIGH);
+ 
+  inchesR = microsecondsToInches(durationR);
+
+  Serial.print("distance sensor 2:");
+  Serial.print(inchesR);
+  Serial.print("in, ");
+  Serial.println();
+  delay(100);
+
+   if (inchesL >= 3.25 || inchesR >= 3.25)
+ { 
+    Serial.print("Object obtained")
+    digitalWrite(ledPin, HIGH);
+ }
+  else {
+    digitalWrite(ledPin, LOW);
+  }
+}
+
+void loop()
+{
+  ultrasonicDetect();
+}
+ 
+long microsecondsToInches(long microseconds)
+{
+return microseconds / 74 / 2;
+}
+
 /************************************************************************
 
 Function Definition
