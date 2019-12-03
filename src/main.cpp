@@ -62,6 +62,7 @@ Function Definition
       if (digitalRead(tiltSwitch) == HIGH) {
         scoopCounter++;
         if(scoopCounter >= iterations){
+          scooperMotor.drive(0);
           break;
         }
         delay(tiltRefresh);
