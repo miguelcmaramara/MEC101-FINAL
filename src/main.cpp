@@ -20,9 +20,9 @@ always turn away from the red wire, towards the red wire.
 //Pin Attachment
   const int servoJackPin = 0;
 
-  const int leftDriverPin[3] = {11 , 6, 7};   //const int driverName[3] = [enable, forward, backward]
-  const int rightDriverPin[3] = {3 , 4, 5};
-  const int scooperPin[3] = {0 , 0, 0};
+  const int leftDriverPin[3] = {5 , 22, 23};   //const int driverName[3] = [enable, forward, backward]
+  const int rightDriverPin[3] = {6 , 24, 25};
+  const int scooperPin[3] = {7 , 26, 27};
 
   const int leftTrig = 46; // attach pin 46 to Trig
   const int leftEcho = 47; //attach pin 47 to Echo
@@ -30,9 +30,9 @@ always turn away from the red wire, towards the red wire.
   const int rightEcho = 49; //attach pin 49 to Echo
 
   const int modePin = 0;
-  const int powerPin = 0;
+  const int powerPin = 40;
 
-  const int tiltSwitch = 0;
+  const int tiltSwitch = 41;
 
 //class creation
   Servo servoJack;
@@ -51,33 +51,17 @@ Function Definition
 
 ************************************************************************/
 
-
-  void scoopToStop(int iterations){
-    iterations = constrain(iterations , 0, 10);
-    int scoopCounter = 0;
-
-    while(true){
-      scooperMotor.drive(scooperMotorSpeed);
-
-      if (digitalRead(tiltSwitch) == HIGH) {
-        scoopCounter++;
-        if(scoopCounter >= iterations){
-          scooperMotor.drive(0);
-          break;
-        }
-        delay(tiltRefresh);
-      }
-    }
-  }
-
+//motor control
   void diffDrive(int leftSpeed, int rightSpeed) {   //optimally, input is between -10, 10 each
     leftMotor.drive(leftSpeed);
     rightMotor.drive(rightSpeed);
     Serial.println(leftSpeed);
   }
 
-      long microsecondsToInches(long microseconds) {
-        return microseconds / 74 / 2;
+//ultrasonic sensor detect
+
+      long microsecondsToCentimeters(long microseconds) {
+        return microseconds / 29 / 2;
       }
       void sendPulse(int trigPin) {
         // The output is triggered by a HIGH pulse of 2 or more microseconds.
@@ -97,7 +81,7 @@ Function Definition
           long duration = pulseIn(echoPin, HIGH);
 
           // convert the time into a distance
-          return microsecondsToInches(duration);
+          return microsecondsToCentimeters(duration);
         }
   boolean objectAquired() {
     sendPulse(leftTrig);
@@ -105,13 +89,14 @@ Function Definition
     sendPulse(rightTrig);
     long inchesR = detectAndConvert(rightEcho);
 
-    if (inchesL >= 3.25 || inchesR >= 3.25) {
+    if (inchesL >= 4.5 || inchesR >= 4.5) {
       return HIGH;
     } else {
       return LOW;
     }
   }
 
+//pin mode states
   boolean fetch(){
     return(modePin == 1);
   }
@@ -119,8 +104,46 @@ Function Definition
     return(modePin == 0);
   }
 
+//scoops for x iterations
+    void scoopToStop(int iterations){
+    iterations = constrain(iterations , 0, 10);
+    int scoopCounter = 0;
+
+    while(true){
+      scooperMotor.drive(scooperMotorSpeed);
+
+      if (digitalRead(tiltSwitch) == HIGH) {
+        scoopCounter++;
+        if(scoopCounter >= iterations){
+          scooperMotor.drive(0);
+          break;
+        }
+        delay(tiltRefresh);
+      }
+    }
+  }
+
+
   void resetPosition(){
     scoopToStop(1);
+  }
+
+//once object detected inside carriage, scooping stops
+  void scoopToObject(){
+    scooperMotor.drive(scooperMotorSpeed);
+
+    while (true) {
+      if (objectAquired()){
+        break;
+      }
+    }
+    scoopToStop(1);
+  }
+
+  void liftback(){
+    servoJack.write(55);
+    delay(1500);
+    servoJack.write(0);
   }
 
 /************************************************************************
@@ -143,24 +166,44 @@ void setup() {
   pinMode(tiltSwitch, INPUT);
 
   Serial.begin(9600);
+
+
 }
 
-
-
 void loop() {
+sendPulse(leftTrig);
+long centimeters = detectAndConvert(leftEcho);
+Serial.println(centimeters);
 
-  if(powerPin == LOW){  //checks for power every 10 seconds
-    while (powerPin == LOW){
+
+/*
+  if(digitalRead(powerPin) == LOW){  //checks for power every 10 seconds
+    while (digitalRead(powerPin) == LOW){
       delay(10000);
+      Serial.println(digitalRead(powerPin));
     }
   }
-
-
-
-  if (powerPin == HIGH) {    //executes actual code only if power is on
-    while (powerPin == HIGH) {
+  */
+  //else if (digitalRead(powerPin) == HIGH) {    //executes actual code only if power is on
+    //while (digitalRead(powerPin) == HIGH) {
     //code that matters starts here
+    //delay(500);
+    /*
+    resetPosition();
+    delay(1000);
 
+    Serial.println(digitalRead(powerPin));
+    diffDrive(10, 10);
+    //delay(10000);
+    scoopToObject();
+    */
+    //diffDrive(0,0);
+    //liftback();
+    //servoJack.write(55);
+    //delay(1500);
+    //servoJack.write(0);
+    //delay(1000);
+    /*
       if(fetch()){
         resetPosition();
 
@@ -173,11 +216,11 @@ void loop() {
         resetPosition();
 
         while (clean()) {
-          /* code */
+
         }
       }
-
-    }
-  }
+      */
+    //}
+  //}
 
 }
