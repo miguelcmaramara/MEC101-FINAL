@@ -24,10 +24,8 @@ always turn away from the red wire, towards the red wire.
   const int rightDriverPin[3] = {6 , 24, 25};
   const int scooperPin[3] = {7 , 26, 27};
 
-  const int leftTrig = 46; // attach pin 46 to Trig
-  const int leftEcho = 47; //attach pin 47 to Echo
-  const int rightTrig = 48; //attach pin 48 to Trig
-  const int rightEcho = 49; //attach pin 49 to Echo
+  const int trig = 46; // attach pin 46 to Trig
+  const int echo = 47; //attach pin 47 to Echo
 
   const int modePin = 0;
   const int powerPin = 40;
@@ -63,7 +61,7 @@ Function Definition
       long microsecondsToCentimeters(long microseconds) {
         return microseconds / 29 / 2;
       }
-      void sendPulse(int trigPin) {
+      long ultrasonic(int trigPin, int echoPin) {
         // The output is triggered by a HIGH pulse of 2 or more microseconds.
         // Give a short LOW pulse beforehand to ensure a clean HIGH pulse:
 
@@ -72,24 +70,21 @@ Function Definition
         digitalWrite(trigPin, HIGH);
         delayMicroseconds(5);
         digitalWrite(trigPin, LOW);
+
+        // The echo pin is used to read the signal: a HIGH
+        // pulse whose duration is the time (in microseconds) from the sending
+        // of the ping to the reception of its echo off of an object.
+
+        long duration = pulseIn(echoPin, HIGH);
+
+        // convert the time into a distance
+        return microsecondsToCentimeters(duration);
       }
-      long detectAndConvert(int echoPin){
-          // The echo pin is used to read the signal: a HIGH
-          // pulse whose duration is the time (in microseconds) from the sending
-          // of the ping to the reception of its echo off of an object.
 
-          long duration = pulseIn(echoPin, HIGH);
-
-          // convert the time into a distance
-          return microsecondsToCentimeters(duration);
-        }
   boolean objectAquired() {
-    sendPulse(leftTrig);
-    long inchesL = detectAndConvert(leftEcho);
-    sendPulse(rightTrig);
-    long inchesR = detectAndConvert(rightEcho);
+    long centimeters = ultrasonic(trig, echo);
 
-    if (inchesL >= 4.5 || inchesR >= 4.5) {
+    if (centimeters < 10) {
       return HIGH;
     } else {
       return LOW;
@@ -136,8 +131,10 @@ Function Definition
       if (objectAquired()){
         break;
       }
+
+      Serial.println(ultrasonic(trig,echo));
     }
-    scoopToStop(1);
+    scoopToStop(0);
   }
 
   void liftback(){
@@ -155,10 +152,8 @@ void setup() {
   //pin assignment
   servoJack.attach(servoJackPin);
 
-  pinMode(leftTrig, OUTPUT);
-  pinMode(rightTrig, OUTPUT);
-  pinMode(leftEcho,INPUT);
-  pinMode(rightEcho,INPUT);
+  pinMode(trig, OUTPUT);
+  pinMode(echo,INPUT);
 
   pinMode(modePin, INPUT);
   pinMode(powerPin, INPUT);
@@ -171,9 +166,8 @@ void setup() {
 }
 
 void loop() {
-sendPulse(leftTrig);
-long centimeters = detectAndConvert(leftEcho);
-Serial.println(centimeters);
+  scoopToObject();
+  delay(1000);
 
 
 /*
