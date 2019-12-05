@@ -10,19 +10,20 @@
 class Motor
 {
   public:
-    Motor(int enable, int logicF, int logicB);
+    Motor(int enable, int logicF, int logicB, int parameter);
 
     void hardStop();
     void forward();
     void backward();
     void changeDir();
-    void driveSpeed(int speed);//input range is 0 to 10
+    void driveSpeed(int speed);//input range is 0 to parameter
 
-    void drive(int speed); // input range is -10 to 10
+    void drive(int speed); // input range is -parameter to parameter
   private:
     int _enable;
     int _logicF;
     int _logicB;
+    int _parameter;
 
     bool _direc;
 
