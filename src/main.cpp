@@ -1,7 +1,7 @@
 #include <Arduino.h>
 #include <Servo.h>
 #include <SPI.h>
-#include <Pixy.h>
+#include <Pixy2.h>
 #include <Motor.h>
 
 /*
@@ -39,9 +39,11 @@ always turn away from the red wire, towards the red wire.
   Motor rightMotor(rightDriverPin[0], rightDriverPin[1], rightDriverPin[2]);
   Motor scooperMotor(scooperPin[0], scooperPin[1], scooperPin[2]);
 
+  Pixy2 pixy;
 //parameter setter
 int scooperMotorSpeed = 10;
 int tiltRefresh = 200;
+int ultrasonicRefresh = 100;
 
 /************************************************************************
 
@@ -83,9 +85,15 @@ Function Definition
 
   boolean objectAquired() {
     long centimeters = ultrasonic(trig, echo);
+    Serial.println(centimeters);
+    if (centimeters < 12) {
+      delay(ultrasonicRefresh);
 
-    if (centimeters < 10) {
-      return HIGH;
+      if (centimeters < 10) {
+        return HIGH;
+      } else {
+        return LOW;
+      }
     } else {
       return LOW;
     }
@@ -160,15 +168,37 @@ void setup() {
 
   pinMode(tiltSwitch, INPUT);
 
-  Serial.begin(9600);
+  //Serial.begin(9600);
+
+  Serial.begin(115200);
+  Serial.print("Starting...\n");
+
+  pixy.init();
 
 
 }
 
 void loop() {
-  scoopToObject();
-  delay(1000);
+  //scoopToObject();
+  //delay(1000);
 
+  int i;
+  // grab blocks!
+  pixy.ccc.getBlocks();
+
+  // If there are detect blocks, print them!
+  if (pixy.ccc.numBlocks)
+  {
+    Serial.print("Detected ");
+    Serial.println(pixy.ccc.numBlocks);
+    for (i=0; i<pixy.ccc.numBlocks; i++)
+    {
+      Serial.print("  block ");
+      Serial.print(i);
+      Serial.print(": ");
+      pixy.ccc.blocks[i].print();
+    }
+  }
 
 /*
   if(digitalRead(powerPin) == LOW){  //checks for power every 10 seconds

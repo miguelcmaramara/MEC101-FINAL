@@ -12,33 +12,34 @@
 //
 // end license header
 //
-// This sketch is demonstrates the setServos() function.  Running this sketch
-// will move the servos to their limits, back and forth, back and forth. 
-//
 
-#include <SPI.h>  
-#include <Pixy.h>
+#include <Pixy2.h>
 
-Pixy pixy;
+Pixy2 pixy;
 
 void setup()
 {
-
-  Serial.begin(9600);
+  Serial.begin(115200);
   Serial.print("Starting...\n");
 
   pixy.init();
 }
 
-void loop() 
-{ 
-  Serial.println("Moving pan-tilt to max positions");
-  pixy.setServos(PIXY_RCS_MAX_POS, PIXY_RCS_MAX_POS);
-  delay(1000);
-
-  Serial.println("Moving pan-tilt to min positions");
+void loop()
+{
   pixy.setServos(PIXY_RCS_MIN_POS, PIXY_RCS_MIN_POS);
-  delay(1000);
-}
+  pixy.setLED(255, 0, 0); // red
 
+  delay(1000);
+
+  pixy.setServos(PIXY_RCS_CENTER_POS, PIXY_RCS_CENTER_POS);
+  pixy.setLED(0, 255, 0); // green
+
+  delay(1000);
+
+  pixy.setServos(PIXY_RCS_MAX_POS, PIXY_RCS_MAX_POS);
+  pixy.setLED(0, 0, 255); // blue
+
+  delay(1000);  
+}
 
